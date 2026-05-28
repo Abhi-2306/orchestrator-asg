@@ -34,7 +34,9 @@ async function refreshInstance() {
 })
 
     const ec2Response = await ec2Client.send(ec2InstanceCommand);
-    // console.log(JSON.stringify(ec2Response.Reservations[0].Instances[0].PublicDnsName));
+    if (ec2Response.Reservations && ec2Response.Reservations.length > 0) {
+        console.log(JSON.stringify(ec2Response.Reservations[0].Instances?.[0]?.PublicDnsName));
+    }
     // TODO Enrich the ALL_MACHINES array with the new instances, and remove the instances that have died
     ALL_MACHINES.length = 0;
     ec2Response.Reservations?.forEach(r => {
@@ -65,7 +67,7 @@ app.get("/:projectId", (req, res) => {
     //scale up
 
     const command = new SetDesiredCapacityCommand({
-        AutoScalingGroupName: "vscode-asg",
+        AutoScalingGroupName: "vs-code-asg",
         DesiredCapacity: ALL_MACHINES.length + (5 - ALL_MACHINES.filter(x => x.isUsed === false).length)
     })
 
